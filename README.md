@@ -4,7 +4,7 @@ A full-stack digital wallet application where users can sign up, log in, check b
 
 ---
 
-## ✅ Features
+## Features
 
 - User Signup and Login with JWT
 - View current wallet balance
@@ -15,7 +15,7 @@ A full-stack digital wallet application where users can sign up, log in, check b
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 ### Backend
 - Node.js
