@@ -47,8 +47,8 @@ npm run dev
 - next up into the frontend folder to run
 
 ```bash
-: npm i 
-: npm run dev
+npm i 
+npm run dev
 ```
 
 - NOTE : make sure you add all the necessary env variables, which are required, the format is given in the .env.examples file
