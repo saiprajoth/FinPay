@@ -50,6 +50,46 @@ const user_model_2 = require("../models/user.model");
 dotenv.config();
 const userRouter = express_1.default.Router();
 userRouter.use(body_parser_1.default.json());
+userRouter.get(["/get-users", "/get-users-firstname/"], authMiddleware_1.authMiddleware, async (req, res) => {
+    try {
+        const result = await user_model_1.UserModel.find({}, { password: 0, __v: 0 });
+        return res.status(200).json({
+            success: true,
+            message: "users fetched successfully",
+            users: result,
+        });
+    }
+    catch (error) {
+        console.log("error occured while fetching users");
+        return res.status(500).json({
+            success: false,
+            message: "error occured while fetching users",
+        });
+    }
+});
+function escapeRegex(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+userRouter.get("/get-users-firstname/:value", authMiddleware_1.authMiddleware, async (req, res) => {
+    try {
+        const firstname = req.params.value;
+        const q = escapeRegex(firstname);
+        const users = await user_model_1.UserModel.find({ firstname: { $regex: q, $options: "i" } }, { password: 0 });
+        console.log("this is users : ", users, "this is the firstname we got from you : ", firstname);
+        return res.status(200).json({
+            success: true,
+            message: "users fetched (with firstnames) successfully",
+            users: users,
+        });
+    }
+    catch (error) {
+        console.log("error occured while fetching users (with firstnames) ");
+        return res.status(500).json({
+            success: false,
+            message: "error occured while fetching users (with firstnames) ",
+        });
+    }
+});
 userRouter.post("/sign-up", async (req, res) => {
     try {
         const body = req.body;
@@ -96,7 +136,9 @@ userRouter.post("/sign-up", async (req, res) => {
             });
         }
         console.log(process.env.SECRET_KEY_JWT);
-        const token = jsonwebtoken_1.default.sign({ identifier: username }, process.env.SECRET_KEY_JWT || "");
+        const token = jsonwebtoken_1.default.sign({ identifier: username }, process.env.SECRET_KEY_JWT || "", {
+            expiresIn: "1h",
+        });
         return res.status(200).json({
             success: true,
             message: "user registration successfull",
@@ -118,7 +160,7 @@ userRouter.post("/sign-in", async (req, res) => {
         if (!validation.success || !validation.data) {
             return res.status(400).json({
                 success: false,
-                message: "kindly enter the required fields for the sign up process",
+                message: "kindly enter the required fields for the sign in process",
             });
         }
         const { identifier } = validation.data;
@@ -132,7 +174,9 @@ userRouter.post("/sign-in", async (req, res) => {
             });
         }
         console.log(process.env.SECRET_KEY_JWT);
-        const token = jsonwebtoken_1.default.sign({ identifier: identifier }, process.env.SECRET_KEY_JWT || "");
+        const token = jsonwebtoken_1.default.sign({ identifier: identifier }, process.env.SECRET_KEY_JWT || "", {
+            expiresIn: "1h",
+        });
         return res.status(200).json({
             success: true,
             message: "user sign-in successfull",
@@ -149,8 +193,7 @@ userRouter.post("/sign-in", async (req, res) => {
 });
 userRouter.put("/update", authMiddleware_1.authMiddleware, async (req, res) => {
     try {
-        const token = req.token;
-        const decoded = jsonwebtoken_1.default.verify(token, process.env.SECRET_KEY_JWT);
+        const identifier = req.identifier;
         const body = req.body;
         const validation = updateUserSchema_1.updateUserSchema.safeParse(body);
         if (!validation.success) {
@@ -160,7 +203,7 @@ userRouter.put("/update", authMiddleware_1.authMiddleware, async (req, res) => {
             });
         }
         const { firstname, lastname, password } = validation.data;
-        const identifier = decoded.identifier;
+        console.log(identifier);
         const findUser = await user_model_1.UserModel.findOne({
             $or: [{ username: identifier }, { email: identifier }],
         });

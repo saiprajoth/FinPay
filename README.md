@@ -30,3 +30,22 @@ A full-stack digital wallet application where users can sign up, log in, check b
 - Axios
 
 
+--- 
+## project instructions
+
+- Hi all you can use the application by pulling the code into your local machine and running the following commands.
+
+- get into the backend folder to run 
+: npm i
+: npm run build
+: docker compose up -d  
+: npm run dev
+
+- next up into the frontend folder to run
+: npm i 
+: npm run dev
+
+- NOTE : make sure you add all the necessary env variables, which are required, the format is given in the .env.examples file
+
+
+

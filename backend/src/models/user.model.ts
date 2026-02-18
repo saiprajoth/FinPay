@@ -9,7 +9,7 @@ interface User extends Document {
 }
 interface Account extends Document{
   userID:Types.ObjectId;
-  balance:Number;
+  balance:number;
   
 }
 

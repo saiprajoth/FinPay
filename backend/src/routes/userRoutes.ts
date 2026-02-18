@@ -7,13 +7,73 @@ import jwt, { type JwtPayload } from "jsonwebtoken";
 import { signInSchema } from "../schemas/signInSchema";
 import * as dotenv from "dotenv";
 import { updateUserSchema } from "../schemas/updateUserSchema";
-import { success } from "zod";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import { AccountModel } from "../models/user.model";
 dotenv.config();
 const userRouter = express.Router();
 
 userRouter.use(bodyParser.json());
+
+userRouter.get(
+  ["/get-users", "/get-users-firstname/"],
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const result = await UserModel.find({}, { password: 0, __v: 0 });
+      return res.status(200).json({
+        success: true,
+        message: "users fetched successfully",
+        users: result,
+      });
+    } catch (error) {
+      console.log("error occured while fetching users");
+      return res.status(500).json({
+        success: false,
+        message: "error occured while fetching users",
+      });
+    }
+  },
+);
+
+function escapeRegex(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+userRouter.get(
+  "/get-users-firstname/:value",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const firstname = req.params.value as string;
+      const q = escapeRegex(firstname);
+
+      const users = await UserModel.find(
+        { firstname: { $regex: q, $options: "i" } },
+        { password: 0 },
+      );
+
+      console.log(
+        "this is users : ",
+        users,
+        "this is the firstname we got from you : ",
+        firstname,
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "users fetched (with firstnames) successfully",
+        users: users,
+      });
+    } catch (error) {
+      console.log("error occured while fetching users (with firstnames) ");
+      return res.status(500).json({
+        success: false,
+        message: "error occured while fetching users (with firstnames) ",
+      });
+    }
+  },
+);
+
 
 userRouter.post("/sign-up", async (req, res) => {
   try {
@@ -73,6 +133,9 @@ userRouter.post("/sign-up", async (req, res) => {
     const token = jwt.sign(
       { identifier: username },
       process.env.SECRET_KEY_JWT || "",
+      {
+        expiresIn: "1h",
+      },
     );
     return res.status(200).json({
       success: true,
@@ -95,7 +158,7 @@ userRouter.post("/sign-in", async (req, res) => {
     if (!validation.success || !validation.data) {
       return res.status(400).json({
         success: false,
-        message: "kindly enter the required fields for the sign up process",
+        message: "kindly enter the required fields for the sign in process",
       });
     }
 
@@ -116,6 +179,9 @@ userRouter.post("/sign-in", async (req, res) => {
     const token = jwt.sign(
       { identifier: identifier },
       process.env.SECRET_KEY_JWT || "",
+      {
+        expiresIn: "1h",
+      },
     );
     return res.status(200).json({
       success: true,
@@ -133,11 +199,9 @@ userRouter.post("/sign-in", async (req, res) => {
 
 userRouter.put("/update", authMiddleware, async (req, res) => {
   try {
-    const token = req.token!;
-    const decoded = jwt.verify(
-      token,
-      process.env.SECRET_KEY_JWT!,
-    ) as JwtPayload;
+ 
+
+    const identifier = req.identifier;
     const body = req.body;
     const validation = updateUserSchema.safeParse(body);
     if (!validation.success) {
@@ -148,7 +212,8 @@ userRouter.put("/update", authMiddleware, async (req, res) => {
     }
 
     const { firstname, lastname, password } = validation.data;
-    const identifier = decoded.identifier;
+
+    console.log(identifier);
 
     const findUser = await UserModel.findOne({
       $or: [{ username: identifier }, { email: identifier }],

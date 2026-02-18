@@ -1,0 +1,25 @@
+
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: mongodb_rs
+    # Starts mongo with the replica set name "rs0"
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    healthcheck:
+      # This command tries to initiate the RS. If it's already initiated, 
+      # it just checks the status so it doesn't fail.
+      test: >
+        mongosh --port 27017 --quiet --eval 
+        "try { rs.initiate({_id:'rs0', members:[{_id:0, host:'localhost:27017'}]}) } catch(e) { rs.status().ok }"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
