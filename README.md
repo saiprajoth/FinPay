@@ -3,6 +3,11 @@
 A full-stack digital wallet application where users can sign up, log in, check balance, and transfer money to other users.
 
 ---
+## Demo
+
+https://github.com/user-attachments/assets/c2c40cee-5454-4ac3-ac87-79c989ba0b5a
+
+---
 
 ## Features
 
