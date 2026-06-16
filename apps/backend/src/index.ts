@@ -10,7 +10,7 @@ import cors from "cors";
 const app = express();
 app.use(cookieParser());
 app.use(cors({
-  origin: "http://localhost:5173", // Must be a specific URL (Cannot be "*")
+  origin: process.env.FRONTEND_URL, // Must be a specific URL (Cannot be "*")
   credentials: true                // Allows cookies to travel across origins
 }));
 
