@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -b",
-    "dev": "node dist/index.js"
+   "dev": "node dist/index.js"
   },
   "devDependencies": {
     "@repo/db": "*",
@@ -18,7 +18,8 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.19.19",
-    "@types/nodemailer": "^8.0.0"
+    "@types/nodemailer": "^8.0.0",
+    "tsx": "^4.22.4"
   },
   "keywords": [],
   "author": "",

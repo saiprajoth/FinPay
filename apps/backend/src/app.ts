@@ -9,7 +9,6 @@ const app = express();
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  "https://fin-pay-frontend.vercel.app",
   "http://localhost:5173",
 ].filter(Boolean) as string[];
 

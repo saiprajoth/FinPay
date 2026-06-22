@@ -1,13 +1,13 @@
 {
   "name": "finpay-v1.0",
   "private": true,
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
-  },
+"scripts": {
+  "build": "turbo run build",
+  "dev": "npm run build --workspace=@repo/db && npm run build --workspace=backend && turbo run dev --filter=frontend --filter=backend",
+  "lint": "turbo run lint",
+  "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+  "check-types": "turbo run check-types"
+},
   "devDependencies": {
     "@types/pg": "^8.20.0",
     "prettier": "^3.7.4",
@@ -30,3 +30,5 @@
     "pg": "^8.21.0"
   }
 }
+
+

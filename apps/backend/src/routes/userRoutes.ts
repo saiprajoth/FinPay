@@ -9,6 +9,17 @@ import jwt from "jsonwebtoken";
 import verifySchema from "../schemas/verifySchema.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
 
+import type { CookieOptions } from "express";
+
+const isProduction = process.env.NODE_ENV === "production";
+
+const authCookieOptions: CookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  maxAge: 60 * 60 * 1000,
+};
+
 userRoutes.get("/", (req, res) => {
   res.status(200).json({
     message: "healthy api check",
@@ -155,11 +166,7 @@ userRoutes.post("/sign-in", async (req, res) => {
       { expiresIn: "30m" },
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      sameSite: "strict",
-      maxAge: 3600000,
-    });
+   res.cookie("token", token, authCookieOptions);
 
     return res.status(200).json({
       success: true,
@@ -175,10 +182,11 @@ userRoutes.post("/sign-in", async (req, res) => {
 });
 
 userRoutes.post("/logout", (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "strict",
-  });
+ res.clearCookie("token", {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+});
 
   return res.status(200).json({
     success: true,
